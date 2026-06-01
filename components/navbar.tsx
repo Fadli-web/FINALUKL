@@ -29,11 +29,13 @@ export default function Navbar() {
       { name: "📜 Riwayat Struk", href: "/customer/history" },
     ],
     MANAGER: [
+         { name: "🪨Dashboard ", href: "/manager/dashboard" },
       { name: "📂 Kategori", href: "/manager/categories" },
       { name: "🍔 Menu Makanan", href: "/manager/menus" },
       { name: "📊 Transaksi Kafe", href: "/manager/orders" },
     ],
     CASHIER: [
+       { name: "🪨Dashboard ", href: "/cashier/dashboard" },
       { name: "🖥️ Kasir POS", href: "/cashier/pos" },
       { name: "📥 Orderan", href: "/cashier/orders" },
     ],
