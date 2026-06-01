@@ -1,22 +1,30 @@
-// utils/api.ts atau lib/api.ts
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+// my-app/utils/api.ts
+
+// Arahkan BASE_URL ke proxy internal Next.js lokal kita sendiri
+export const BASE_URL = "/api";
 
 export async function apiRequest(endpoint: string, options: RequestInit = {}) {
-  // WAJIB AMBIL DI DALAM FUNGSI biar token terbaru selalu terbaca saat ditransmisikan
+  // Ambil token secara dinamis dari localStorage (aman dijalankan di client-side)
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",
-    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  // Merapikan endpoint agar tidak terjadi double slash (//)
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const url = `${BASE_URL}${cleanEndpoint}`;
+
+  const res = await fetch(url, {
     ...options,
     headers,
   });
 
-  // Jika response backend tidak oke (401, 403, 500, dll)
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || `Error HTTP: ${res.status}`);

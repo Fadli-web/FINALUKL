@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiRequest } from "@/utils/api";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -21,11 +20,19 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await apiRequest("/auth/register", {
+      // Menembak rute lokal Next.js yang barusan kita buat
+      const res = await fetch("/api/auth/register", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       
+      const result = await res.json();
+
+      if (!res.ok) {
+         throw new Error(result.message || "Gagal melakukan registrasi");
+      }
+
       alert("Registrasi berhasil! Silakan login.");
       router.push("/auth/login");
     } catch (err: any) {
@@ -55,7 +62,7 @@ export default function RegisterPage() {
             <input
               type="text"
               required
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-brown-500 focus:ring-brown-500"
+              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-amber-500 focus:ring-amber-500"
               placeholder="Masukkan username"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -67,7 +74,7 @@ export default function RegisterPage() {
             <input
               type="password"
               required
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-brown-500 focus:ring-brown-500"
+              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-amber-500 focus:ring-amber-500"
               placeholder="••••••••"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -77,7 +84,7 @@ export default function RegisterPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700">Pilih Role</label>
             <select
-              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-brown-500 focus:ring-brown-500"
+              className="mt-1 w-full rounded-lg border border-gray-300 p-2.5 text-gray-900 focus:border-amber-500 focus:ring-amber-500"
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
             >
