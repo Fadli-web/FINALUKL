@@ -22,6 +22,7 @@ export default function Navbar() {
         }
     }, []);
 
+<<<<<<< HEAD
     // 📋 PEMETAAN FITUR SEPERTI YANG KAMU MINTA:
     const menuItems = {
         CUSTOMER: [
@@ -40,6 +41,26 @@ export default function Navbar() {
             { name: "📥 Orderan", href: "/cashier/orders" },
         ],
     };
+=======
+  // 📋 PEMETAAN FITUR SEPERTI YANG KAMU MINTA:
+  const menuItems = {
+    CUSTOMER: [
+      { name: "☕ Pesan Menu", href: "/customer/dashboard" },
+      { name: "📜 Riwayat Struk", href: "/customer/history" },
+    ],
+    MANAGER: [
+         { name: "🪨Dashboard ", href: "/manager/dashboard" },
+      { name: "📂 Kategori", href: "/manager/categories" },
+      { name: "🍔 Menu Makanan", href: "/manager/menus" },
+      { name: "📊 Transaksi Kafe", href: "/manager/orders" },
+    ],
+    CASHIER: [
+       { name: "🪨Dashboard ", href: "/cashier/dashboard" },
+      { name: "🖥️ Kasir POS", href: "/cashier/pos" },
+      { name: "📥 Orderan", href: "/cashier/orders" },
+    ],
+  };
+>>>>>>> 97b97921f4f0a5837f6493135bd1d17df8e3569c
 
     // Jika data session belum terbaca oleh browser, jangan render navbar dulu
     if (!role) return null;
@@ -120,6 +141,7 @@ export default function Navbar() {
                     className={`absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0"}`}
                 />
 
+<<<<<<< HEAD
                 {/* Konten Utama Sidebar */}
                 <div className={`absolute top-0 left-0 bottom-0 w-72 bg-zinc-950 p-5 flex flex-col justify-between border-r border-zinc-800 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
                     <div>
@@ -183,3 +205,19 @@ export default function Navbar() {
         </>
     );
 }
+=======
+          {/* Tombol Keluar Aplikasi */}
+          <div className="pt-4 border-t border-zinc-800">
+            <button
+              onClick={() => logout()}
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+            >
+              Keluar Aplikasi
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+>>>>>>> 97b97921f4f0a5837f6493135bd1d17df8e3569c
