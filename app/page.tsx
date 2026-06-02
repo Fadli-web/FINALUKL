@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PremiumLandingPage() {
-  // State untuk melacak Role mana yang sedang aktif di sim
+  // State untuk melacak Role mana yang sedang aktif di simulasi
   const [activeRole, setActiveRole] = useState<'manager' | 'cashier' | 'customer'>('manager');
 
   // Data dinamis yang disesuaikan dengan Postman JSON API kamu
@@ -88,12 +87,7 @@ export default function PremiumLandingPage() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[350px] bg-gradient-to-b from-[#8a7560]/10 to-transparent blur-[120px] pointer-events-none" />
 
       {/* NAVBAR */}
-      <motion.nav 
-        initial={{ y: -30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="border-b border-amber-500/10 bg-[#0d0a08]/80 backdrop-blur-xl sticky top-0 z-50"
-      >
+      <nav className="border-b border-amber-500/10 bg-[#0d0a08]/80 backdrop-blur-xl sticky top-0 z-50 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded bg-[#8a7560]/20 border border-[#8a7560]/40 flex items-center justify-center text-amber-500 font-mono font-bold text-sm">C</div>
@@ -110,80 +104,46 @@ export default function PremiumLandingPage() {
             </Link>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* HERO SECTION */}
       <header className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 px-4 max-w-7xl mx-auto text-center z-10">
         {/* Real-time Status API Badge */}
-        <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 font-mono mb-8"
-        >
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 font-mono mb-8">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           BACKEND LIVE CONNECTED : RAILWAY.APP
-        </motion.div>
+        </div>
 
         {/* Headline Premium */}
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white mb-6 leading-tight max-w-5xl mx-auto"
-        >
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white mb-6 leading-tight max-w-5xl mx-auto">
           Arsitektur Kasir Modern <br className="hidden sm:inline" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8a7560] via-amber-400 to-[#caa98a]">
             Berbasis Multi-Role Access
           </span>
-        </motion.h1>
+        </h1>
 
         {/* Deskripsi Menjelaskan Keunggulan Sistem */}
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-base sm:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light"
-        >
+        <p className="text-base sm:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
           Proyek Point of Sales terintegrasi penuh untuk tugas UKL Semester Genap SMK Telkom Malang. Dirancang presisi menggunakan Next.js App Router untuk kendali berlapis operasional cafe masa kini.
-        </motion.p>
+        </p>
 
         {/* Main CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-md mx-auto mb-20"
-        >
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-md mx-auto mb-20">
           <Link href="/auth" className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[#8a7560] to-[#bda48a] text-black font-bold rounded shadow-2xl shadow-[#8a7560]/20 hover:opacity-95 transition-all text-center">
             Buka Dashboard Aplikasi
           </Link>
           <a href="#sandbox" className="w-full sm:w-auto px-8 py-4 border border-amber-500/20 bg-amber-500/5 text-amber-400 font-mono text-sm font-medium rounded hover:bg-amber-500/10 transition-all text-center">
             &lt; Explore API Sandbox /&gt;
           </a>
-        </motion.div>
+        </div>
 
-        {/* RESPONSIVE FLOATING IMAGE HERO */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="relative w-full max-w-5xl mx-auto"
-        >
-          {/* Animasi Floating Terus Menerus */}
-          <motion.div
-            animate={{ y: [-15, 15, -15] }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 5, 
-              ease: "easeInOut" 
-            }}
-            className="relative aspect-[16/9] w-full rounded-2xl border border-amber-500/20 shadow-[0_0_80px_-20px_rgba(202,169,138,0.25)] overflow-hidden bg-[#110d0a]/50 backdrop-blur-sm flex items-center justify-center"
-          >
-            {/* Ganti '/hero-mockup.png' dengan nama file gambarmu di folder public */}
+        {/* RESPONSIVE IMAGE HERO */}
+        <div className="relative w-full max-w-5xl mx-auto">
+          {/* Menggunakan animasi pulse bawaan Tailwind biar tetep dinamis tanpa Framer Motion */}
+          <div className="relative aspect-[16/9] w-full rounded-2xl border border-amber-500/20 shadow-[0_0_80px_-20px_rgba(202,169,138,0.25)] overflow-hidden bg-[#110d0a]/50 backdrop-blur-sm flex items-center justify-center transition-all duration-500 hover:border-amber-500/40">
             <Image 
               src="/coffe2.jpg" 
               alt="Dashboard App Preview"
@@ -194,13 +154,13 @@ export default function PremiumLandingPage() {
             
             {/* Fallback Text (Akan tertutup jika gambar berhasil di-load) */}
             <div className="absolute inset-0 flex items-center justify-center text-amber-500/30 font-mono text-sm -z-10">
-              [ Masukkan gambar 'hero-mockup.png' ke folder /public ]
+              [ Masukkan gambar 'coffe2.jpg' ke folder /public ]
             </div>
-          </motion.div>
+          </div>
           
           {/* Decorative Glow di Bawah Gambar */}
           <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[80%] h-[30px] bg-amber-500/20 blur-[50px] rounded-full pointer-events-none" />
-        </motion.div>
+        </div>
       </header>
 
       {/* UNIQUE VALUE MOCKUP SECTION (INTERACTIVE SHOWCASE) */}
@@ -232,34 +192,25 @@ export default function PremiumLandingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           {/* Sisi Kiri: Deskripsi & Route API */}
           <div className="lg:col-span-5 flex flex-col justify-between space-y-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeRole}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-4"
-              >
-                <div className="inline-block px-2.5 py-1 text-[10px] uppercase tracking-widest font-mono font-bold bg-[#8a7560]/10 text-[#caa98a] border border-[#8a7560]/20 rounded">
-                  {roleShowcases[activeRole].badge}
+            <div className="space-y-4 transition-all duration-300">
+              <div className="inline-block px-2.5 py-1 text-[10px] uppercase tracking-widest font-mono font-bold bg-[#8a7560]/10 text-[#caa98a] border border-[#8a7560]/20 rounded">
+                {roleShowcases[activeRole].badge}
+              </div>
+              <h3 className="text-2xl font-bold text-white">{roleShowcases[activeRole].title}</h3>
+              <p className="text-sm text-gray-400 leading-relaxed">{roleShowcases[activeRole].description}</p>
+              
+              {/* Router Endpoint Lists */}
+              <div className="pt-4 space-y-2">
+                <div className="text-xs font-mono text-gray-500">// Terhubung ke Endpoint Backend:</div>
+                <div className="flex flex-wrap gap-2">
+                  {roleShowcases[activeRole].endpoints.map((ep) => (
+                    <span key={ep} className="px-2.5 py-1 bg-[#14100c] border border-amber-500/10 rounded font-mono text-[11px] text-amber-400">
+                      {ep}
+                    </span>
+                  ))}
                 </div>
-                <h3 className="text-2xl font-bold text-white">{roleShowcases[activeRole].title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{roleShowcases[activeRole].description}</p>
-                
-                {/* Router Endpoint Lists */}
-                <div className="pt-4 space-y-2">
-                  <div className="text-xs font-mono text-gray-500">// Terhubung ke Endpoint Backend:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {roleShowcases[activeRole].endpoints.map((ep) => (
-                      <span key={ep} className="px-2.5 py-1 bg-[#14100c] border border-amber-500/10 rounded font-mono text-[11px] text-amber-400">
-                        {ep}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            </div>
           </div>
 
           {/* Sisi Kanan: Mock Interface / Code Preview */}
@@ -276,31 +227,17 @@ export default function PremiumLandingPage() {
             </div>
             {/* Window Content */}
             <div className="p-6 flex-1 bg-gradient-to-b from-[#110d0a] to-[#0d0a08] flex flex-col justify-center">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeRole}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#16110d] border border-amber-500/5 p-5 rounded-lg shadow-inner"
-                >
-                  {roleShowcases[activeRole].mockUI}
-                </motion.div>
-              </AnimatePresence>
+              <div className="bg-[#16110d] border border-amber-500/5 p-5 rounded-lg shadow-inner transition-all duration-300">
+                {roleShowcases[activeRole].mockUI}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* DEVELOPER SANDBOX / EXAMINER CARD (VALUABLE VALUE) */}
+      {/* DEVELOPER SANDBOX / EXAMINER CARD */}
       <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="p-8 rounded-xl bg-gradient-to-br from-[#120e0a] to-[#0d0a08] border border-amber-500/10 relative overflow-hidden"
-        >
+        <div className="p-8 rounded-xl bg-gradient-to-br from-[#120e0a] to-[#0d0a08] border border-amber-500/10 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[80px] pointer-events-none" />
           
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
@@ -328,14 +265,14 @@ export default function PremiumLandingPage() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* FOOTER */}
       <footer className="border-t border-amber-500/10 py-8 bg-[#0d0a08] text-center font-mono text-[10px] text-gray-600 relative z-10">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
           <p>© 2026 SMK TELKOM MALANG - UKL PROJECT GENAP. ALL RIGHTS RESERVED.</p>
-          <p className="text-[#8a7560]/60">BUILD WITH NEXT.JS APP ROUTER & TAILWIND & FRAMER MOTION</p>
+          <p className="text-[#8a7560]/60">BUILD WITH NEXT.JS APP ROUTER & TAILWIND CSS</p>
         </div>
       </footer>
 
