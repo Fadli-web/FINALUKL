@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function PremiumLandingPage() {
-  // State untuk melacak Role mana yang sedang aktif di simulator
+  // State untuk melacak Role mana yang sedang aktif di sim
   const [activeRole, setActiveRole] = useState<'manager' | 'cashier' | 'customer'>('manager');
 
   // Data dinamis yang disesuaikan dengan Postman JSON API kamu
