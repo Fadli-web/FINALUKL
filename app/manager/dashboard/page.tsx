@@ -74,7 +74,7 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
   const [time, setTime] = useState(new Date());
 
-  // State Data untuk ApexCharts
+  // State Data untuk ApexCharts & List
   const [statusData, setStatusData] = useState<any[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [stockData, setStockData] = useState<any[]>([]);
@@ -129,11 +129,11 @@ export default function DashboardOverview() {
         }));
         setTimelineData(timeline);
 
-        // --- 4. Data Sisa Stok Menu (Ambil 5 stok terendah) ---
+        // --- 4. Data Sisa Stok Menu (List View) ---
         const stockInfo = menusArray
-          .map((m: any) => ({ name: m.name, stock: m.stock }))
+          .map((m: any) => ({ name: m.name, stock: Number(m.stock) || 0 })) // Pastikan jadi angka
           .sort((a: any, b: any) => a.stock - b.stock) 
-          .slice(0, 5); 
+          .slice(0, 5); // Ambil 5 terendah
         setStockData(stockInfo);
 
         // --- 5. Data Menu Terlaris ---
@@ -146,7 +146,6 @@ export default function DashboardOverview() {
                menuSales[mId] = (menuSales[mId] || 0) + qty;
             });
           } else if (order.items && Array.isArray(order.items)) {
-             // Fallback untuk key 'items' jika 'orderItems' tidak ada
              order.items.forEach((item: any) => {
               const mId = item.menuId; 
               const qty = item.quantity || 1;
@@ -194,7 +193,7 @@ export default function DashboardOverview() {
   const hours = time.getHours();
   const greeting = hours < 11 ? "Selamat Pagi" : hours < 15 ? "Selamat Siang" : hours < 18 ? "Selamat Sore" : "Selamat Malam";
 
-  // Konfigurasi Global ApexCharts untuk Dark Mode
+  // Konfigurasi Global ApexCharts
   const commonOptions: any = {
     chart: { background: 'transparent', toolbar: { show: false }, fontFamily: 'inherit' },
     theme: { mode: 'dark' },
@@ -301,13 +300,13 @@ export default function DashboardOverview() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
             <h3 className="text-sm font-bold text-amber-400/80 uppercase tracking-widest mb-3">Tips Hari Ini</h3>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              Pastikan stok pada item yang paling laris (Top Menu) selalu tersedia agar omset tetap maksimal. Pantau grafik sisa stok di bawah.
+              Pastikan stok pada item yang paling laris (Top Menu) selalu tersedia agar omset tetap maksimal. Pantau daftar sisa stok di bawah.
             </p>
           </div>
         </div>
       </div>
 
-      {/* === ROW 2 GRAFIK: Status, Top Menu, Stok === */}
+      {/* === ROW 2 GRAFIK: Status, Top Menu, Stok List === */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Status Transaksi (Apex Bar Chart) */}
@@ -335,58 +334,49 @@ export default function DashboardOverview() {
           </div>
         </div>
 
-        {/* Top Menu (Apex Donut Chart) */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Menu Terlaris</h3>
-          {topMenuData.length > 0 ? (
-            <div className="flex-1 w-full flex items-center justify-center">
-              <ReactApexChart 
-                type="donut" 
-                height="100%"
-                series={topMenuData.map(d => d.value)}
-                options={{
-                  ...commonOptions,
-                  labels: topMenuData.map(d => d.name),
-                  colors: COLORS,
-                  stroke: { show: true, colors: ['#18181b'], width: 2 },
-                  legend: { show: false },
-                  plotOptions: { 
-                    pie: { 
-                      donut: { size: '75%', labels: { show: true, name: { color: '#a1a1aa' }, value: { color: '#fff', fontWeight: 'bold' } } } 
-                    } 
-                  }
-                }} 
-              />
-            </div>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Belum ada penjualan</div>
-          )}
-        </div>
 
-        {/* Sisa Stok Warning (Apex Horizontal Bar) */}
+        {/* Sisa Stok Warning (List View) */}
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Peringatan Stok</h3>
+          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Peringatan Stok</h3>
+          
           {stockData.length > 0 ? (
-            <div className="flex-1 w-full">
-              <ReactApexChart 
-                type="bar" 
-                height="100%"
-                series={[{ name: "Sisa Stok", data: stockData.map(d => d.stock) }]}
-                options={{
-                  ...commonOptions,
-                  colors: stockData.map(d => d.stock < 10 ? '#ef4444' : '#f59e0b'),
-                  plotOptions: { bar: { horizontal: true, borderRadius: 4, distributed: true, barHeight: '50%' } },
-                  legend: { show: false },
-                  xaxis: { labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
-                  yaxis: { 
-                    categories: stockData.map(d => d.name),
-                    labels: { style: { colors: '#a1a1aa', fontSize: '11px' }, maxWidth: 90 } 
-                  }
-                }} 
-              />
+            <div className="flex-1 w-full overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {stockData.map((item, idx) => {
+                const isOutOfStock = item.stock === 0;
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-2.5 w-2.5">
+                        {isOutOfStock && (
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        )}
+                        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isOutOfStock ? 'bg-red-500' : 'bg-amber-500'}`}></span>
+                      </div>
+                      <p className="text-sm font-medium text-zinc-200 line-clamp-1">{item.name}</p>
+                    </div>
+                    
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${
+                      isOutOfStock
+                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                        : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                    }`}>
+                      {isOutOfStock ? "Habis!" : `Sisa ${item.stock}`}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Data stok kosong</div>
+            <div className="flex-1 flex flex-col items-center justify-center text-zinc-600 gap-2">
+              <svg className="w-8 h-8 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <p className="text-sm">Stok menu aman</p>
+            </div>
           )}
         </div>
 
