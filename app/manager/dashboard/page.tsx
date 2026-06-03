@@ -2,20 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/utils/api";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  TooltipProps
-} from "recharts";
+import dynamic from "next/dynamic";
+
+// PENTING: ApexCharts butuh window browser, jadi harus di-load dinamis (No SSR)
+const ReactApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 // --- Komponen Pendukung ---
 interface StatCardProps {
@@ -76,22 +66,7 @@ function ActivityRow({ label, sub, badge }: { label: string; sub: string; badge:
   );
 }
 
-// --- Tooltip Kustom ---
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-[#18181b] border border-[#3f3f46] rounded-xl p-3 shadow-xl">
-        <p className="text-zinc-400 text-xs mb-1">{label}</p>
-        <p className="text-white font-bold">
-          {payload[0].value} {payload[0].name === "total" || payload[0].name === "value" ? "Item" : "Pesanan"}
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
-// --- Warna ---
+// --- Warna Kustom ---
 const COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899", "#f43f5e"];
 
 export default function DashboardOverview() {
@@ -99,7 +74,7 @@ export default function DashboardOverview() {
   const [loading, setLoading] = useState(true);
   const [time, setTime] = useState(new Date());
 
-  // State untuk 4 Grafik
+  // State Data untuk ApexCharts
   const [statusData, setStatusData] = useState<any[]>([]);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [stockData, setStockData] = useState<any[]>([]);
@@ -114,14 +89,16 @@ export default function DashboardOverview() {
           apiRequest("/orders"),
         ]);
         
-        const menusArray = menuRes.data || [];
-        const ordersArray = orderRes.data || [];
+        // Pengecekan ketat agar data selalu berformat array
+        const menusArray = Array.isArray(menuRes.data || menuRes) ? (menuRes.data || menuRes) : [];
+        const ordersArray = Array.isArray(orderRes.data || orderRes) ? (orderRes.data || orderRes) : [];
+        const catsArray = Array.isArray(catRes.data || catRes) ? (catRes.data || catRes) : [];
         
         // --- 1. Total Angka ---
         setStats({
-          categories: catRes.data?.length || 0,
-          menus: menusArray.length || 0,
-          orders: ordersArray.length || 0,
+          categories: catsArray.length,
+          menus: menusArray.length,
+          orders: ordersArray.length,
         });
 
         // --- 2. Data Grafik Status Transaksi ---
@@ -138,7 +115,6 @@ export default function DashboardOverview() {
         ]);
 
         // --- 3. Data Grafik Tren Waktu (Order per Jam) ---
-        // Asumsi format createdAt adalah string ISO, misal "2024-05-15T14:30:00Z"
         const hoursCount: Record<string, number> = {};
         ordersArray.forEach((order: any) => {
           if (order.createdAt) {
@@ -147,8 +123,6 @@ export default function DashboardOverview() {
             hoursCount[hour] = (hoursCount[hour] || 0) + 1;
           }
         });
-        
-        // Urutkan berdasarkan jam
         const timeline = Object.keys(hoursCount).sort().map(hour => ({
           time: hour,
           orders: hoursCount[hour]
@@ -158,32 +132,36 @@ export default function DashboardOverview() {
         // --- 4. Data Sisa Stok Menu (Ambil 5 stok terendah) ---
         const stockInfo = menusArray
           .map((m: any) => ({ name: m.name, stock: m.stock }))
-          .sort((a: any, b: any) => a.stock - b.stock) // Urutkan dari yang paling sedikit
-          .slice(0, 5); // Ambil 5 terendah
+          .sort((a: any, b: any) => a.stock - b.stock) 
+          .slice(0, 5); 
         setStockData(stockInfo);
 
         // --- 5. Data Menu Terlaris ---
-        // Menghitung quantity setiap menuId dari semua order
         const menuSales: Record<number, number> = {};
         ordersArray.forEach((order: any) => {
           if (order.orderItems && Array.isArray(order.orderItems)) {
             order.orderItems.forEach((item: any) => {
-               // Sesuaikan dengan struktur API, asumsikan ada menuId dan quantity
                const mId = item.menuId; 
                const qty = item.quantity || 1;
                menuSales[mId] = (menuSales[mId] || 0) + qty;
             });
+          } else if (order.items && Array.isArray(order.items)) {
+             // Fallback untuk key 'items' jika 'orderItems' tidak ada
+             order.items.forEach((item: any) => {
+              const mId = item.menuId; 
+              const qty = item.quantity || 1;
+              menuSales[mId] = (menuSales[mId] || 0) + qty;
+           });
           }
         });
 
-        // Gabungkan dengan nama menu
         const topMenus = Object.keys(menuSales).map(menuId => {
           const menu = menusArray.find((m: any) => m.id === parseInt(menuId));
           return {
             name: menu ? menu.name : `Menu #${menuId}`,
             value: menuSales[parseInt(menuId)]
           };
-        }).sort((a, b) => b.value - a.value).slice(0, 4); // Ambil Top 4
+        }).sort((a, b) => b.value - a.value).slice(0, 4); 
         
         setTopMenuData(topMenus);
 
@@ -215,6 +193,15 @@ export default function DashboardOverview() {
 
   const hours = time.getHours();
   const greeting = hours < 11 ? "Selamat Pagi" : hours < 15 ? "Selamat Siang" : hours < 18 ? "Selamat Sore" : "Selamat Malam";
+
+  // Konfigurasi Global ApexCharts untuk Dark Mode
+  const commonOptions: any = {
+    chart: { background: 'transparent', toolbar: { show: false }, fontFamily: 'inherit' },
+    theme: { mode: 'dark' },
+    grid: { borderColor: 'rgba(255, 255, 255, 0.05)', strokeDashArray: 4 },
+    dataLabels: { enabled: false },
+    tooltip: { theme: 'dark', style: { fontSize: '12px' } }
+  };
 
   return (
     <div className="space-y-6 p-1">
@@ -274,25 +261,29 @@ export default function DashboardOverview() {
       {/* === ROW 1 GRAFIK: Tren Waktu (Besar) & Info === */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
-        {/* Tren Pesanan */}
+        {/* Tren Pesanan (Apex Area Chart) */}
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 lg:col-span-2 flex flex-col">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6">Tren Pesanan Harian</h3>
           {timelineData.length > 0 ? (
             <div className="flex-1 w-full min-h-[250px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorOrders" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="time" stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#a1a1aa" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="orders" stroke="#f59e0b" strokeWidth={3} fillOpacity={1} fill="url(#colorOrders)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              <ReactApexChart 
+                type="area" 
+                height="100%"
+                series={[{ name: "Total Pesanan", data: timelineData.map(d => d.orders) }]}
+                options={{
+                  ...commonOptions,
+                  colors: ['#f59e0b'],
+                  stroke: { curve: 'smooth', width: 3 },
+                  fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.0, stops: [0, 100] } },
+                  xaxis: { 
+                    categories: timelineData.map(d => d.time), 
+                    axisBorder: { show: false }, 
+                    axisTicks: { show: false },
+                    labels: { style: { colors: '#a1a1aa' } }
+                  },
+                  yaxis: { labels: { style: { colors: '#a1a1aa' } } }
+                }} 
+              />
             </div>
           ) : (
              <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Belum ada data waktu pesanan</div>
@@ -319,74 +310,80 @@ export default function DashboardOverview() {
       {/* === ROW 2 GRAFIK: Status, Top Menu, Stok === */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         
-        {/* Status Transaksi */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[300px]">
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Status Pesanan</h3>
+        {/* Status Transaksi (Apex Bar Chart) */}
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
+          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Status Pesanan</h3>
           <div className="flex-1 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusData} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}>
-                <XAxis dataKey="name" stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="total" radius={[4, 4, 0, 0]} barSize={30}>
-                  {statusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <ReactApexChart 
+              type="bar" 
+              height="100%"
+              series={[{ name: "Jumlah", data: statusData.map(d => d.total) }]}
+              options={{
+                ...commonOptions,
+                colors: statusData.map(d => d.color),
+                plotOptions: { bar: { borderRadius: 4, distributed: true, columnWidth: '55%' } },
+                legend: { show: false },
+                xaxis: { 
+                  categories: statusData.map(d => d.name),
+                  labels: { style: { colors: '#a1a1aa', fontSize: '11px' } },
+                  axisBorder: { show: false },
+                  axisTicks: { show: false }
+                },
+                yaxis: { labels: { style: { colors: '#a1a1aa' } } }
+              }} 
+            />
           </div>
         </div>
 
-        {/* Top Menu (Pie Chart) */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[300px]">
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-0">Menu Terlaris</h3>
+        {/* Top Menu (Apex Donut Chart) */}
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
+          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Menu Terlaris</h3>
           {topMenuData.length > 0 ? (
-            <div className="flex-1 w-full relative flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={topMenuData}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {topMenuData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-              {/* Legend di tengah chart */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <span className="text-xs font-semibold text-zinc-400">Top 4</span>
-              </div>
+            <div className="flex-1 w-full flex items-center justify-center">
+              <ReactApexChart 
+                type="donut" 
+                height="100%"
+                series={topMenuData.map(d => d.value)}
+                options={{
+                  ...commonOptions,
+                  labels: topMenuData.map(d => d.name),
+                  colors: COLORS,
+                  stroke: { show: true, colors: ['#18181b'], width: 2 },
+                  legend: { show: false },
+                  plotOptions: { 
+                    pie: { 
+                      donut: { size: '75%', labels: { show: true, name: { color: '#a1a1aa' }, value: { color: '#fff', fontWeight: 'bold' } } } 
+                    } 
+                  }
+                }} 
+              />
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Belum ada penjualan</div>
           )}
         </div>
 
-        {/* Sisa Stok Warning */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[300px]">
-          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Peringatan Stok</h3>
+        {/* Sisa Stok Warning (Apex Horizontal Bar) */}
+        <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
+          <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Peringatan Stok</h3>
           {stockData.length > 0 ? (
             <div className="flex-1 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stockData} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={80} stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="stock" radius={[0, 4, 4, 0]} barSize={20}>
-                    {stockData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.stock < 10 ? "#ef4444" : "#f59e0b"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <ReactApexChart 
+                type="bar" 
+                height="100%"
+                series={[{ name: "Sisa Stok", data: stockData.map(d => d.stock) }]}
+                options={{
+                  ...commonOptions,
+                  colors: stockData.map(d => d.stock < 10 ? '#ef4444' : '#f59e0b'),
+                  plotOptions: { bar: { horizontal: true, borderRadius: 4, distributed: true, barHeight: '50%' } },
+                  legend: { show: false },
+                  xaxis: { labels: { show: false }, axisBorder: { show: false }, axisTicks: { show: false } },
+                  yaxis: { 
+                    categories: stockData.map(d => d.name),
+                    labels: { style: { colors: '#a1a1aa', fontSize: '11px' }, maxWidth: 90 } 
+                  }
+                }} 
+              />
             </div>
           ) : (
             <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Data stok kosong</div>
