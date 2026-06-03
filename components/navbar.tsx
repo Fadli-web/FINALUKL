@@ -27,15 +27,16 @@ export default function Navbar() {
         CUSTOMER: [
             { name: "☕ Pesan Menu", href: "/customer/dashboard" },
             { name: "📜 Riwayat Struk", href: "/customer/history" },
+            { name: "🛒Keranjang", href: "/customer/cart" },
         ],
         MANAGER: [
-               { name: "🪨Dashboard ", href: "/manager/dashboard" },
+            { name: "🪨Dashboard ", href: "/manager/dashboard" },
             { name: "📂 Kategori", href: "/manager/categories" },
             { name: "🍔 Menu Makanan", href: "/manager/menus" },
             { name: "📊 Transaksi Kafe", href: "/manager/orders" },
         ],
         CASHIER: [
-             { name: "🪨Dashboard ", href: "/cashier/dashboard" },
+            { name: "🪨Dashboard ", href: "/cashier/dashboard" },
             { name: "🖥️ Kasir POS", href: "/cashier/pos" },
             { name: "📥 Orderan", href: "/cashier/orders" },
         ],
@@ -66,8 +67,8 @@ export default function Navbar() {
                                     key={item.href}
                                     href={item.href}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${isActive
-                                            ? "bg-orange-600 text-white shadow-md font-semibold"
-                                            : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                                        ? "bg-orange-600 text-white shadow-md font-semibold"
+                                        : "text-zinc-400 hover:text-white hover:bg-zinc-800"
                                         }`}
                                 >
                                     {item.name}
@@ -156,8 +157,8 @@ export default function Navbar() {
                                         onClick={() => setIsOpen(false)}
                                         href={item.href}
                                         className={`px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-between ${isActive
-                                                ? "bg-zinc-900 text-orange-500 border-l-4 border-orange-500 font-semibold pl-3"
-                                                : "text-zinc-400 hover:text-white hover:bg-zinc-900/50"
+                                            ? "bg-zinc-900 text-orange-500 border-l-4 border-orange-500 font-semibold pl-3"
+                                            : "text-zinc-400 hover:text-white hover:bg-zinc-900/50"
                                             }`}
                                     >
                                         <span>{item.name}</span>
