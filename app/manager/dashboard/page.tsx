@@ -14,6 +14,7 @@ import {
   Area,
   PieChart,
   Pie,
+  TooltipProps
 } from "recharts";
 
 // --- Komponen Pendukung ---
