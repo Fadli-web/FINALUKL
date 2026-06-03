@@ -19,17 +19,15 @@ interface StatCardProps {
 function StatCard({ label, value, icon, accent, delay = "0ms" }: StatCardProps) {
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl ${
-        accent
+      className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl ${accent
           ? "bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-amber-500/20 shadow-xl"
           : "bg-white/[0.03] border border-white/[0.08] hover:border-amber-500/30 text-white"
-      }`}
+        }`}
       style={{ animationDelay: delay }}
     >
       {accent && <div className="absolute inset-0 bg-gradient-to-br from-amber-400/20 to-transparent pointer-events-none" />}
-      <div className={`absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${
-        accent ? "bg-white/10" : "bg-amber-500/0 group-hover:bg-amber-500/5"
-      }`} />
+      <div className={`absolute -top-8 -right-8 w-32 h-32 rounded-full blur-2xl pointer-events-none transition-opacity duration-500 ${accent ? "bg-white/10" : "bg-amber-500/0 group-hover:bg-amber-500/5"
+        }`} />
 
       <div className="relative flex items-start justify-between gap-4">
         <div className="space-y-3">
@@ -40,11 +38,10 @@ function StatCard({ label, value, icon, accent, delay = "0ms" }: StatCardProps) 
             {value}
           </p>
         </div>
-        <div className={`p-3 rounded-xl transition-all duration-300 ${
-          accent
+        <div className={`p-3 rounded-xl transition-all duration-300 ${accent
             ? "bg-white/20 text-white group-hover:bg-white/30"
             : "bg-white/[0.06] text-zinc-400 group-hover:bg-amber-500 group-hover:text-white"
-        }`}>
+          }`}>
           {icon}
         </div>
       </div>
@@ -88,12 +85,12 @@ export default function DashboardOverview() {
           apiRequest("/menus"),
           apiRequest("/orders"),
         ]);
-        
+
         // Pengecekan ketat agar data selalu berformat array
         const menusArray = Array.isArray(menuRes.data || menuRes) ? (menuRes.data || menuRes) : [];
         const ordersArray = Array.isArray(orderRes.data || orderRes) ? (orderRes.data || orderRes) : [];
         const catsArray = Array.isArray(catRes.data || catRes) ? (catRes.data || catRes) : [];
-        
+
         // --- 1. Total Angka ---
         setStats({
           categories: catsArray.length,
@@ -132,7 +129,7 @@ export default function DashboardOverview() {
         // --- 4. Data Sisa Stok Menu (List View) ---
         const stockInfo = menusArray
           .map((m: any) => ({ name: m.name, stock: Number(m.stock) || 0 })) // Pastikan jadi angka
-          .sort((a: any, b: any) => a.stock - b.stock) 
+          .sort((a: any, b: any) => a.stock - b.stock)
           .slice(0, 5); // Ambil 5 terendah
         setStockData(stockInfo);
 
@@ -141,16 +138,16 @@ export default function DashboardOverview() {
         ordersArray.forEach((order: any) => {
           if (order.orderItems && Array.isArray(order.orderItems)) {
             order.orderItems.forEach((item: any) => {
-               const mId = item.menuId; 
-               const qty = item.quantity || 1;
-               menuSales[mId] = (menuSales[mId] || 0) + qty;
-            });
-          } else if (order.items && Array.isArray(order.items)) {
-             order.items.forEach((item: any) => {
-              const mId = item.menuId; 
+              const mId = item.menuId;
               const qty = item.quantity || 1;
               menuSales[mId] = (menuSales[mId] || 0) + qty;
-           });
+            });
+          } else if (order.items && Array.isArray(order.items)) {
+            order.items.forEach((item: any) => {
+              const mId = item.menuId;
+              const qty = item.quantity || 1;
+              menuSales[mId] = (menuSales[mId] || 0) + qty;
+            });
           }
         });
 
@@ -160,8 +157,8 @@ export default function DashboardOverview() {
             name: menu ? menu.name : `Menu #${menuId}`,
             value: menuSales[parseInt(menuId)]
           };
-        }).sort((a, b) => b.value - a.value).slice(0, 4); 
-        
+        }).sort((a, b) => b.value - a.value).slice(0, 4);
+
         setTopMenuData(topMenus);
 
       } catch (err) {
@@ -170,7 +167,7 @@ export default function DashboardOverview() {
         setLoading(false);
       }
     }
-    
+
     fetchStats();
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -259,14 +256,14 @@ export default function DashboardOverview() {
 
       {/* === ROW 1 GRAFIK: Tren Waktu (Besar) & Info === */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        
+
         {/* Tren Pesanan (Apex Area Chart) */}
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 lg:col-span-2 flex flex-col">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-6">Tren Pesanan Harian</h3>
           {timelineData.length > 0 ? (
             <div className="flex-1 w-full min-h-[250px]">
-              <ReactApexChart 
-                type="area" 
+              <ReactApexChart
+                type="area"
                 height="100%"
                 series={[{ name: "Total Pesanan", data: timelineData.map(d => d.orders) }]}
                 options={{
@@ -274,18 +271,18 @@ export default function DashboardOverview() {
                   colors: ['#f59e0b'],
                   stroke: { curve: 'smooth', width: 3 },
                   fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.0, stops: [0, 100] } },
-                  xaxis: { 
-                    categories: timelineData.map(d => d.time), 
-                    axisBorder: { show: false }, 
+                  xaxis: {
+                    categories: timelineData.map(d => d.time),
+                    axisBorder: { show: false },
                     axisTicks: { show: false },
                     labels: { style: { colors: '#a1a1aa' } }
                   },
                   yaxis: { labels: { style: { colors: '#a1a1aa' } } }
-                }} 
+                }}
               />
             </div>
           ) : (
-             <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Belum ada data waktu pesanan</div>
+            <div className="flex-1 flex items-center justify-center text-zinc-600 text-sm">Belum ada data waktu pesanan</div>
           )}
         </div>
 
@@ -308,13 +305,13 @@ export default function DashboardOverview() {
 
       {/* === ROW 2 GRAFIK: Status, Top Menu, Stok List === */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
+
         {/* Status Transaksi (Apex Bar Chart) */}
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-2">Status Pesanan</h3>
           <div className="flex-1 w-full">
-            <ReactApexChart 
-              type="bar" 
+            <ReactApexChart
+              type="bar"
               height="100%"
               series={[{ name: "Jumlah", data: statusData.map(d => d.total) }]}
               options={{
@@ -322,14 +319,14 @@ export default function DashboardOverview() {
                 colors: statusData.map(d => d.color),
                 plotOptions: { bar: { borderRadius: 4, distributed: true, columnWidth: '55%' } },
                 legend: { show: false },
-                xaxis: { 
+                xaxis: {
                   categories: statusData.map(d => d.name),
                   labels: { style: { colors: '#a1a1aa', fontSize: '11px' } },
                   axisBorder: { show: false },
                   axisTicks: { show: false }
                 },
                 yaxis: { labels: { style: { colors: '#a1a1aa' } } }
-              }} 
+              }}
             />
           </div>
         </div>
@@ -338,15 +335,15 @@ export default function DashboardOverview() {
         {/* Sisa Stok Warning (List View) */}
         <div className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 flex flex-col h-[320px]">
           <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Peringatan Stok</h3>
-          
+
           {stockData.length > 0 ? (
             <div className="flex-1 w-full overflow-y-auto pr-2 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
               {stockData.map((item, idx) => {
                 const isOutOfStock = item.stock === 0;
-                
+
                 return (
-                  <div 
-                    key={idx} 
+                  <div
+                    key={idx}
                     className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -358,12 +355,11 @@ export default function DashboardOverview() {
                       </div>
                       <p className="text-sm font-medium text-zinc-200 line-clamp-1">{item.name}</p>
                     </div>
-                    
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${
-                      isOutOfStock
+
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${isOutOfStock
                         ? "bg-red-500/10 text-red-400 border border-red-500/20"
                         : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                    }`}>
+                      }`}>
                       {isOutOfStock ? "Habis!" : `Sisa ${item.stock}`}
                     </span>
                   </div>

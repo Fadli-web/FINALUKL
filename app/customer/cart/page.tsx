@@ -311,7 +311,7 @@
 
 //   const handleCheckout = async () => {
 //     if (cart.length === 0) return;
-    
+
 //     // Validasi input metode pembayaran sebelum dikirim ke API
 //     if (!paymentMethod) {
 //       alert("Silakan pilih metode pembayaran terlebih dahulu!");
@@ -331,7 +331,7 @@
 //           })),
 //         }),
 //       });
-      
+
 //       localStorage.removeItem("cafe_cart");
 //       window.dispatchEvent(new Event("cart_updated"));
 //       router.push("/customer/history");
@@ -569,9 +569,9 @@ export default function CustomerCartPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  
+
   // State untuk form
-  const [paymentMethod, setPaymentMethod] = useState<string>(""); 
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
 
   const router = useRouter();
 
@@ -602,7 +602,7 @@ export default function CustomerCartPage() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
-    
+
     if (!paymentMethod) {
       alert("Silakan pilih metode pembayaran terlebih dahulu!");
       return;
@@ -613,14 +613,14 @@ export default function CustomerCartPage() {
       await apiRequest("/orders", {
         method: "POST",
         body: JSON.stringify({
-          paymentMethod: paymentMethod, 
+          paymentMethod: paymentMethod,
           items: cart.map((item) => ({
             menuId: item.id,
             quantity: item.quantity,
           })),
         }),
       });
-      
+
       localStorage.removeItem("cafe_cart");
       window.dispatchEvent(new Event("cart_updated"));
       router.push("/customer/history");
@@ -704,11 +704,10 @@ export default function CustomerCartPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => (item.quantity === 1 ? removeItem(item.id) : updateQty(item.id, -1))}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm transition-all ${
-                      item.quantity === 1
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm transition-all ${item.quantity === 1
                         ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
                         : "bg-white/[0.06] text-zinc-300 hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     {item.quantity === 1 ? (
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -737,11 +736,10 @@ export default function CustomerCartPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMethod("CASH")}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  paymentMethod === "CASH"
+                className={`p-4 rounded-xl border text-left transition-all ${paymentMethod === "CASH"
                     ? "bg-amber-500/10 border-amber-500 text-amber-400 shadow-md shadow-amber-500/5"
                     : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20"
-                }`}
+                  }`}
               >
                 <p className="font-bold text-sm text-white">Tunai (Cash)</p>
                 <p className="text-xs text-zinc-500 mt-1">Bayar langsung di kasir</p>
@@ -750,11 +748,10 @@ export default function CustomerCartPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMethod("QRIS")}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  paymentMethod === "QRIS"
+                className={`p-4 rounded-xl border text-left transition-all ${paymentMethod === "QRIS"
                     ? "bg-amber-500/10 border-amber-500 text-amber-400 shadow-md shadow-amber-500/5"
                     : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20"
-                }`}
+                  }`}
               >
                 <p className="font-bold text-sm text-white">QRIS / Digital</p>
                 <p className="text-xs text-zinc-500 mt-1">Scan QR Code cashless</p>
@@ -764,11 +761,10 @@ export default function CustomerCartPage() {
               <button
                 type="button"
                 onClick={() => setPaymentMethod("BANK_TRANSFER")}
-                className={`p-4 rounded-xl border text-left transition-all ${
-                  paymentMethod === "BANK_TRANSFER"
+                className={`p-4 rounded-xl border text-left transition-all ${paymentMethod === "BANK_TRANSFER"
                     ? "bg-amber-500/10 border-amber-500 text-amber-400 shadow-md shadow-amber-500/5"
                     : "bg-white/[0.02] border-white/10 text-zinc-400 hover:border-white/20"
-                }`}
+                  }`}
               >
                 <p className="font-bold text-sm text-white">Transfer Bank</p>
                 <p className="text-xs text-zinc-500 mt-1">Via Virtual Account</p>

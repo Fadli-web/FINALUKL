@@ -10,6 +10,7 @@ interface Menu {
   stock: number;
   isAvailable: boolean;
   categoryId: number;
+  imageUrl?: string | null; // Tambahan field gambar
 }
 
 interface Category {
@@ -176,11 +177,10 @@ export default function CustomerDashboard() {
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex-shrink-0 ${
-              selectedCategory === cat.id
-                ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20"
-                : "bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:border-white/20 hover:text-zinc-200"
-            }`}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex-shrink-0 ${selectedCategory === cat.id
+              ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20"
+              : "bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:border-white/20 hover:text-zinc-200"
+              }`}
           >
             {cat.name}
           </button>
@@ -191,7 +191,7 @@ export default function CustomerDashboard() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-52 rounded-2xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
+            <div key={i} className="h-64 rounded-2xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
           ))}
         </div>
       ) : sortedMenus.length === 0 ? (
@@ -212,85 +212,110 @@ export default function CustomerDashboard() {
             return (
               <div
                 key={menu.id}
-                className={`group relative flex flex-col rounded-2xl border p-5 transition-all duration-300 ${
-                  isUnavailable
-                    ? "bg-white/[0.02] border-white/[0.05] opacity-50"
-                    : "bg-white/[0.04] hover:bg-white/[0.07] border-white/[0.08] hover:border-amber-500/25 hover:-translate-y-0.5"
-                }`}
+                className={`group relative flex flex-col rounded-2xl border overflow-hidden transition-all duration-300 ${isUnavailable
+                  ? "bg-white/[0.02] border-white/[0.05] opacity-50 grayscale-[0.5]"
+                  : "bg-white/[0.04] hover:bg-white/[0.07] border-white/[0.08] hover:border-amber-500/25 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50"
+                  }`}
               >
-                {/* Top: category + sold out badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-bold text-amber-400/80 bg-amber-500/10 border border-amber-500/15 px-2.5 py-1 rounded-lg">
-                    {categories.find((c) => c.id === menu.categoryId)?.name || "Menu"}
-                  </span>
-                  {isUnavailable && (
-                    <span className="text-[10px] font-black text-zinc-500 bg-zinc-800 border border-zinc-700 px-2 py-1 rounded-lg">
-                      HABIS
-                    </span>
-                  )}
-                  {!isUnavailable && menu.stock <= 10 && (
-                    <span className="text-[10px] font-black text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-lg">
-                      Sisa {menu.stock}
-                    </span>
-                  )}
-                </div>
-
-                {/* Name */}
-                <h3 className="font-bold text-white text-base leading-snug flex-1">
-                  {menu.name}
-                </h3>
-
-                {/* Price + actions */}
-                <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-3">
-                  <span className="font-black text-amber-400 text-base">
-                    Rp {menu.price.toLocaleString("id-ID")}
-                  </span>
-
-                  {isUnavailable ? (
-                    <span className="text-xs text-zinc-600 font-medium">Tidak tersedia</span>
-                  ) : qtyInCart === 0 ? (
-                    <button
-                      onClick={() => handleAddToCart(menu)}
-                      className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 ${
-                        isAdding
-                          ? "bg-emerald-500 text-white scale-95"
-                          : "bg-amber-500 hover:bg-amber-400 text-black hover:shadow-lg hover:shadow-amber-500/20"
-                      }`}
-                    >
-                      {isAdding ? (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                          Ditambah
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                          </svg>
-                          Pesan
-                        </>
-                      )}
-                    </button>
+                {/* --- Bagian Gambar Menu --- */}
+                <div className="relative h-44 w-full bg-zinc-800 border-b border-white/[0.05] overflow-hidden">
+                  {menu.imageUrl ? (
+                    <img
+                      src={menu.imageUrl}
+                      alt={menu.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        // Fallback jika gambar gagal dimuat
+                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/400x300/18181b/3f3f46?text=No+Image";
+                      }}
+                    />
                   ) : (
-                    <div className="flex items-center gap-2 bg-white/[0.06] border border-white/10 rounded-xl px-2 py-1">
-                      <button
-                        onClick={() => handleRemoveOne(menu)}
-                        className="w-6 h-6 flex items-center justify-center rounded-lg bg-white/[0.08] hover:bg-red-500/20 text-zinc-300 hover:text-red-400 font-black text-xs transition-all"
-                      >
-                        −
-                      </button>
-                      <span className="text-white font-black text-sm w-5 text-center tabular-nums">{qtyInCart}</span>
-                      <button
-                        onClick={() => handleAddToCart(menu)}
-                        disabled={qtyInCart >= menu.stock}
-                        className="w-6 h-6 flex items-center justify-center rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-black disabled:opacity-30 font-black text-xs transition-all"
-                      >
-                        +
-                      </button>
+                    <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 bg-white/[0.02]">
+                      <svg className="w-10 h-10 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[10px] font-medium tracking-wider uppercase opacity-50">No Image</span>
                     </div>
                   )}
+
+                  {/* Badges melayang di atas gambar */}
+                  <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none">
+                    <span className="text-[10px] font-bold text-amber-900 bg-amber-400 px-2.5 py-1 rounded-md shadow-lg backdrop-blur-md">
+                      {categories.find((c) => c.id === menu.categoryId)?.name || "Menu"}
+                    </span>
+                    
+                    <div className="flex flex-col gap-1.5 items-end">
+                      {isUnavailable && (
+                        <span className="text-[10px] font-black text-white bg-red-600/90 backdrop-blur-md px-2 py-1 rounded-md shadow-lg border border-red-500/50">
+                          HABIS
+                        </span>
+                      )}
+                      {!isUnavailable && menu.stock <= 10 && (
+                        <span className="text-[10px] font-black text-red-100 bg-red-500/80 backdrop-blur-md border border-red-500/50 px-2 py-1 rounded-md shadow-lg">
+                          Sisa {menu.stock}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* --- End Bagian Gambar --- */}
+
+                {/* Konten Text & Aksi */}
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="font-bold text-white text-base leading-snug flex-1 line-clamp-2">
+                    {menu.name}
+                  </h3>
+
+                  <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-3">
+                    <span className="font-black text-amber-400 text-base">
+                      Rp {menu.price.toLocaleString("id-ID")}
+                    </span>
+
+                    {isUnavailable ? (
+                      <span className="text-xs text-zinc-600 font-medium">Tidak tersedia</span>
+                    ) : qtyInCart === 0 ? (
+                      <button
+                        onClick={() => handleAddToCart(menu)}
+                        className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-xl transition-all duration-300 ${isAdding
+                          ? "bg-emerald-500 text-white scale-95"
+                          : "bg-amber-500 hover:bg-amber-400 text-black hover:shadow-lg hover:shadow-amber-500/20"
+                          }`}
+                      >
+                        {isAdding ? (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Ditambah
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Pesan
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 bg-white/[0.06] border border-white/10 rounded-xl px-2 py-1">
+                        <button
+                          onClick={() => handleRemoveOne(menu)}
+                          className="w-6 h-6 flex items-center justify-center rounded-lg bg-white/[0.08] hover:bg-red-500/20 text-zinc-300 hover:text-red-400 font-black text-xs transition-all"
+                        >
+                          −
+                        </button>
+                        <span className="text-white font-black text-sm w-5 text-center tabular-nums">{qtyInCart}</span>
+                        <button
+                          onClick={() => handleAddToCart(menu)}
+                          disabled={qtyInCart >= menu.stock}
+                          className="w-6 h-6 flex items-center justify-center rounded-lg bg-amber-500/20 hover:bg-amber-500 text-amber-400 hover:text-black disabled:opacity-30 font-black text-xs transition-all"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
